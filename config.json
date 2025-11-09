@@ -1,11 +1,28 @@
 {
-    "project_name": "Toy LLM System (OpenAI SDK)",
-    "model": "gpt-5",
-    "system_prompt": "You are a precise, concise assistant.",
-    "temperature": 0.0,
-    "max_output_tokens": 256,
-    "task": {
-      "input": "Explain what an LLM agent is in one sentence.",
-      "success_contains": ["agent", "llm"]
+  "project_name": "Toy LLM System - Semantle Task",
+  "model": "gpt-4o-mini",
+  "temperature": 0.0,
+  "max_output_tokens": 256,
+  "max_iterations": 10,
+  "max_time_sec": null,
+  "trace_path": "traces/run.jsonl",
+  "use_stub": false,
+  "context": {
+    "scaffold": "You are playing a word guessing game called Semantle. Your goal is to guess a target word by receiving similarity scores. Higher scores (closer to 100) mean you're closer to the target word. Use the feedback from previous guesses to make better guesses. Respond with just a single word guess, or a JSON object with a 'guess' key containing your word.",
+    "memory": [],
+    "tool_policy": {
+      "enabled": false,
+      "tools": []
+    }
+  },
+  "task": {
+    "type": "semantle",
+    "input": "Make your first guess for the target word.",
+    "iterative_prompt": "Based on your previous guesses and their similarity scores, make your next guess.",
+    "target_word": "example",
+    "success_threshold": 100.0,
+    "output_schema": {
+      "required_keys": []
     }
   }
+}
