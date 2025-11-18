@@ -50,11 +50,11 @@ pip install openai arize-phoenix-otel
 `.env` file required keys:
 ```
 OPENAI_API_KEY=<OpenAI key>
-PHOENIX_API_KEY=<system key from Phoenix dashboard (JWT-like)>
+PHOENIX_API_KEY=<system key from Phoenix dashboard>
 PHOENIX_PROJECT_NAME=toy-llm          # any descriptive label for grouping traces
 PHOENIX_COLLECTOR_ENDPOINT=https://app.phoenix.arize.com/s/<space-id>/v1/traces
 # Optional (legacy/custom collectors):
-# PHOENIX_CLIENT_HEADERS="api_key%3Dphx-..."   # URL-encoded header for pre-Jun-24-2025 spaces
+# PHOENIX_CLIENT_HEADERS=""   # URL-encoded header for pre-Jun-24-2025 spaces
 # PHOENIX_GRPC_PORT="4317"                     # override only if your collector runs elsewhere
 ```
 - **API key**: Use a **System Key**, not a user key. Retrieve it from *Dashboard → Settings → API Keys* in Phoenix.  
@@ -72,24 +72,23 @@ Set `"telemetry": { "phoenix": { "enabled": true } }` in `config.json` (already 
 2. **Populate `.env`**  
    - Add the following entries (quotes optional, but recommended for secrets):
      ```
-     OPENAI_API_KEY="sk-..."
-     PHOENIX_API_KEY="phx-..."
+     OPENAI_API_KEY=""
+     PHOENIX_API_KEY=""
      PHOENIX_PROJECT_NAME="toy-llm"        # or your space/project label
-     PHOENIX_COLLECTOR_ENDPOINT="https://<hostname-from-settings>"
+     PHOENIX_COLLECTOR_ENDPOINT="https://app.phoenix.arize.com/s/<space-id>/v1/traces"
      # Optional:
-     # PHOENIX_CLIENT_HEADERS="api_key%3Dphx-..."   # only needed for legacy spaces
+     # PHOENIX_CLIENT_HEADERS=""   # only needed for legacy spaces
      # PHOENIX_GRPC_PORT="4317"                     # change if using a custom collector port
      ```
 3. **Enable telemetry**  
    - Set `"telemetry": { "phoenix": { "enabled": true } }` in `config.json` (or rely on auto-enable once the env vars exist).
 4. **Run & verify**  
    - Execute `python3 script.py --config config.json`.  
-   - On success/failure you will still get the JSON result, plus Phoenix spans will stream to your space.  
+   - On success/failure (of task) you will still get the JSON result, plus Phoenix spans will stream to your space.  
    - In the Phoenix UI, open the space’s *Traces* tab and filter by project name (default `toy-llm`) to confirm you see spans like `toy_llm.run`, `toy_llm.iteration`, and `toy_llm.openai_call`.  
    - Locally, you can also inspect `traces/run.jsonl` for the legacy JSON trace log.
 5. **Troubleshooting tips**  
    - No spans appearing? Double-check the API key, endpoint URL, and that `arize-phoenix-otel` is installed in the same virtualenv.  
-   - To test connectivity, temporarily set `PHOENIX_COLLECTOR_ENDPOINT="http://localhost:6006"` and run `phoenix serve` or the Docker image from the docs, then rerun the script.
 
 #### 3. Key issues we hit (and fixes)
 
@@ -98,13 +97,11 @@ Set `"telemetry": { "phoenix": { "enabled": true } }` in `config.json` (already 
 | Dashboard hostname used without `/v1/traces` | 405 / 500 from collector | Add `/v1/traces` so the exporter targets the OTLP HTTP ingest endpoint directly |
 | Invalid or user-level API key | 401 Unauthorized | Regenerate/copy a **System Key** from *Settings → API Keys* |
 | Protocol warning (“defaulting to HTTP”) | Warning during run but spans still show up | Safe to ignore as long as traces arrive in Phoenix (Cloud is HTTP-only as of May 2025) |
-| Missing client header in legacy spaces | Persistent 500 errors | Set `PHOENIX_CLIENT_HEADERS="api_key%3D<system-key>"` for spaces created before Jun 24, 2025 |
-| No timestamps on prior shell history | Hard to audit older commands | Add `HISTTIMEFORMAT="%F %T "` to your shell rc to log timestamps going forward |
 | Docs don’t explicitly mention `/v1/traces` | Confusion when endpoints rejected | Empirically confirmed the OTLP subpath is required for Cloud ingest |
 
 #### 4. Verification steps
 1. Run `python3 script.py --config config.json`.  
 2. In Phoenix, open your space → find the project card (e.g., “Toy LLM System”) → confirm trace counts/latency update.  
 3. Drill into a trace to see spans `toy_llm.run`, `toy_llm.iteration`, and `toy_llm.openai_call`.  
-4. Ignore protocol warnings if traces arrive correctly; they’re cosmetic once ingestion succeeds.  
+4. Ignore protocol warnings if traces arrive correctly in Phoenix UI.
 5. Locally inspect `traces/run.jsonl` for a backup log of the run.
