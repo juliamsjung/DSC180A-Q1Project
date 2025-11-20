@@ -41,3 +41,8 @@ htmlcov/
 # Logs
 *.log
 
+# Toy bench artifacts
+toy_bench/toy_tabular/workspace/data.npy
+toy_bench/toy_tabular/workspace/labels.npy
+toy_bench/toy_tabular/workspace/results.json
+

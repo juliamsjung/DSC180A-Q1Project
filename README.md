@@ -107,3 +107,26 @@ Set `"telemetry": { "phoenix": { "enabled": true } }` in `config.json` (already 
 3. Drill into a trace to see spans `toy_llm.run`, `toy_llm.iteration`, and `toy_llm.openai_call`.  
 4. Ignore protocol warnings if traces arrive correctly in Phoenix UI.
 5. Locally inspect `traces/run.jsonl` for a backup log of the run.
+
+---
+
+## Toy Bench (Q1 scaffolding)
+
+The `toy_bench/toy_tabular` package adds a tiny internal benchmark for prototyping context policies and Phoenix tracing before moving to MLAgentBench.
+
+1. **Install extra dependency**
+   ```bash
+   pip install scikit-learn
+   ```
+2. **Run the standalone agent loop**
+   ```bash
+   python -m toy_bench.toy_tabular.toy_agent
+   ```
+   This performs a baseline run plus three LLM-guided (or heuristic) config proposals, saving artifacts inside `toy_bench/toy_tabular/workspace/`.
+3. **Run under Phoenix tracing (opt-in)**
+   ```bash
+   python run_toy_bench.py --config config.json --num-steps 3
+   ```
+   The script reuses the existing telemetry settings in `config.json`/`.env`, wraps the run in a `toybench.toy_tabular_run` span, and records step-level spans if tracing is enabled.
+
+All generated data (`data.npy`, `labels.npy`, `results.json`) remains local to the workspace and is ignored by git. Adjust defaults (e.g., number of steps) via the `"toy_bench"` block in `config.json`.

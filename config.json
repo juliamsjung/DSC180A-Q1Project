@@ -31,5 +31,8 @@
       "batch": true,
       "auto_instrument": false
     }
+  },
+  "toy_bench": {
+    "num_steps": 3
   }
 }
