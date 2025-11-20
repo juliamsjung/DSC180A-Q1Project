@@ -12,10 +12,23 @@ class ToyTabularEnv:
 
     def __init__(self, workspace: Path | None = None):
         self.workspace = workspace or Path(__file__).resolve().parent / "workspace"
-        self.config_path = self.workspace / "config.json"
+        self.workspace.mkdir(parents=True, exist_ok=True)
+
+        # Baseline config (tracked in git)
+        self.base_config_path = self.workspace / "config.json"
+        # Runtime config (mutated, ignored by git)
+        self.config_path = self.workspace / "run_config.json"
+
         self.results_path = self.workspace / "results.json"
         self.train_script = self.workspace / "train.py"
-        self.workspace.mkdir(parents=True, exist_ok=True)
+
+        # On first run, if run_config.json doesn't exist, copy from config.json
+        if not self.config_path.exists():
+            if not self.base_config_path.exists():
+                raise FileNotFoundError(
+                    f"Baseline config.json not found at {self.base_config_path}"
+                )
+            self.config_path.write_text(self.base_config_path.read_text())
 
     def read_config(self) -> Dict[str, Any]:
         return json.loads(self.config_path.read_text())
@@ -30,5 +43,3 @@ class ToyTabularEnv:
             check=True,
         )
         return json.loads(self.results_path.read_text())
-
-
