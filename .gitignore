@@ -13,6 +13,10 @@ ENV/
 traces/
 *.jsonl
 
+# json files for results and plots
+toy_bench/toy_tabular/workspace/all_results.json
+toy_bench/toy_tabular/workspace/plots/
+
 # Environment variables (keep secrets local)
 .env
 .env.local
