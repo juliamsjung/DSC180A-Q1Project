@@ -130,3 +130,13 @@ The `toy_bench/toy_tabular` package adds a tiny internal benchmark for prototypi
    The script reuses the existing telemetry settings in `config.json`/`.env`, wraps the run in a `toybench.toy_tabular_run` span, and records step-level spans if tracing is enabled.
 
 All generated data (`data.npy`, `labels.npy`, `results.json`) remains local to the workspace and is ignored by git. Adjust defaults (e.g., number of steps) via the `"toy_bench"` block in `config.json`.
+
+## Visualize With Plots
+This command generates plots based on the data in `all_results.json` (file that contains all results from each iteration of a single run).
+```bash
+python toy_bench/toy_tabular/workspace/plot.py
+```
+
+Currently, plots...
+
+1. **Iteration vs Accuracy**
